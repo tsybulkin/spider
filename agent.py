@@ -5,7 +5,7 @@
 #
 ####################################################### 
 
-#from tools import d, coin
+from tools import coin
 from math import pi
 
 
@@ -29,7 +29,6 @@ class Agent():
 			return self.get_greedy_policy(State)
 
 
-	
 
 	def get_greedy_policy(self,State):
 		"""returns the best action for the State
@@ -37,36 +36,31 @@ class Agent():
 		value_action_list = [ (self.Q[(S,A)], A) for (S,A) in self.Q if S == State]
 		
 		if len(value_action_list) != 0:
-			value_action_list.sort()
-			Value, Action = value_action_list.pop()
-			print "Value:%.2g, actions: %i" %(Value,len(value_action_list)+1)
-			#print value_action_list
+			Value, Action = max(value_action_list)
 			return Action
 		else:
 			return None
 
+	
+	
 	def learn(self, nextState, State, Action, Reward):
-		V1 = get_value(nextState)
-		V = get_value(State)
+		(V1,_) = get_value(nextState)
+		V = self.Q.get((State,Action),0)
 		
 		V_1 = V + self.lr * (Reward + self.gama * V1 - V)
 		self.Q[ ( State, Action) ] = V_1
 
 
 
-	def get_value(self,State):
-		values = [ self.Q[(S,A)] for (S,A) in self.Q if S == State]
+	def get_value_action(self,State):
+		values = [ (self.Q[(S,A)],A) for (S,A) in self.Q if S == State ]
 		if len(values) == 0:
-			return 0
+			return (0,None)
 		else:
 			return max(values)
 
 
 
-def get_reward(State, nextState, Action):
-	"""returns the next state and reward
-	"""
-	return 0
 
 
 
