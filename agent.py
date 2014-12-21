@@ -14,7 +14,7 @@ class Agent():
 	def __init__(self, eps=0.1, lr=0.5, gama= 0.9):
 		self.Q = {}
 		self.eps = eps
-		self.lean_rate = lr
+		self.learn_rate = lr
 		self.gama = gama
 
 	
@@ -43,11 +43,11 @@ class Agent():
 
 	
 	
-	def learn(self, nextState, State, Action, Reward):
-		(V1,_) = get_value(nextState)
+	def learn(self, State, nextState, Action, Reward):
+		(V1,_) = self.get_value_action(nextState)
 		V = self.Q.get((State,Action),0)
 		
-		V_1 = V + self.lr * (Reward + self.gama * V1 - V)
+		V_1 = V + self.learn_rate * (Reward + self.gama * V1 - V)
 		self.Q[ ( State, Action) ] = V_1
 
 

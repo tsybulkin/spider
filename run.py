@@ -4,22 +4,27 @@
 #  
 #
 ####################################################### 
+import sys
+
 from random import seed
 from agent import Agent
 from spider import Spider
 
 from tools import *
 
+import numpy as np
+import matplotlib.pyplot as plt
 
 
-episode_len = 40
+
+episode_len = 10
 
 
 def get_action(State,Action,robot,agent):
 	robot_copy = robot.copy()
 		
-	reward, nextState = robot_copy.take_action(State,Action)
-	agent.learn(State,nextState,policy,reward)
+	reward, nextState = robot_copy.take_action(Action)
+	agent.learn(State,nextState,Action,reward)
 	return robot_copy
 
 
@@ -44,18 +49,28 @@ def run(episodes):
 	
 	for i in range(episodes):
 		robot = Spider()
-		run_episode(robot,agent)
+		run_episode(robot,agent,False)
 
 
 	## demo what has been leartn
+	run_episode(robot,agent,True)
 	
 
 
 
-def run_episode(robot, agent):
-
-	for N in range(episode_len):	
+def run_episode(robot, agent, draw):
+	
+	if draw:
+		plt.axes()
+		rectangle = plt.Rectangle((-25, -25), 60, 60, fc='w')
+		plt.gca().add_patch(rectangle)
+		plt.axis('scaled')
+		plt.ion()
+		plt.show()
 		
+	for _ in range(episode_len):	
+		robot.draw(plt)
+
 		State = robot.get_state()
 		policy = agent.get_policy(State)
 		if policy == None:
