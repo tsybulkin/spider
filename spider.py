@@ -13,7 +13,7 @@ import numpy as np
 from tools import *
 
 
-r_body = 0.3
+r_body = 0.5
 r_leg = 0.9
 
 
@@ -91,6 +91,7 @@ class Spider():
 		
 		self.xy0 = xy_old[:] + dxy
 		reward = dxy[0] - abs(dxy[1])	
+		#print "reward:",reward
 		
 		## check if raised leg changed
 		self.check_raised_leg()
@@ -113,7 +114,7 @@ class Spider():
 			foot = plt.Circle(leg.get_xy((self.xy0,self.R,self.theta)), radius=self.R/5, fc=color)	
 			plt.gca().add_patch(foot)
 		plt.draw()
-		sleep(1)
+		sleep(0.2)
 
 
 	def check_raised_leg(self):

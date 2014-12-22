@@ -8,6 +8,8 @@ import sys
 
 from random import seed
 from agent import Agent
+#from nn_agent import nn_agent
+
 from spider import Spider
 
 from tools import *
@@ -41,26 +43,40 @@ def get_random_action(State, robot, agent):
 
 
 
-def run(episodes):
-
+def run(episodes, mode):
 	seed()
-	agent = Agent()
+	
+	if mode == 'neural':
+		agent = nn_agent()
+	else:
+		agent = Agent()
+		agent.Q = read_data("data/spider.dat")	
+	
 	
 	for i in range(episodes):
+		if i%500 == 0: print "%i episodes passed. %i state-actions processed" % (i,len(agent.Q))
 		robot = Spider()
 		run_episode(robot,agent,False)
-		if i%1000 == 0: print "State-action explored:", len(agent.Q)
-
-	print "State-action explored:", len(agent.Q)
+		
+	print "State-action processed:", len(agent.Q)
 
 	## demo what has been leartn
 	run_episode(robot,agent,True,episode_len=50)
 
+
+	if mode == 'neural':
+		pass
+	else:
+		agent.clean_q()
+		print "State-action remained:", len(agent.Q)
+		write_data(agent.Q,"data/spider.dat")
+	
+
 	
 
 
 
-def run_episode(robot, agent, draw,episode_len=30):
+def run_episode(robot, agent, draw,episode_len=20):
 	
 	if draw:
 		plt.axes()
@@ -94,8 +110,9 @@ def run_episode(robot, agent, draw,episode_len=30):
 
 if __name__ == '__main__':
 	Args = sys.argv[:]
-	if len(Args) != 2:
-		print "Wrong syntax\nUSAGE: python run.py <nbr_training_episodes> "
+	if len(Args) != 3:
+		print "Wrong syntax\nUSAGE: python run.py <nbr_training_episodes> agent"
+		print "Available agents: \n\tneural\n\tsalsa"
 	else:
-		run(int(Args[1]))
+		run(int(Args[1]),Args[2])
 

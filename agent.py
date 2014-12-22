@@ -6,12 +6,11 @@
 ####################################################### 
 
 from tools import coin
-from math import pi
 
 
 
 class Agent():
-	def __init__(self, eps=0.1, lr=0.5, gama= 0.9):
+	def __init__(self, eps=0.05, lr=0.5, gama=0.9):
 		self.Q = {}
 		self.eps = eps
 		self.learn_rate = lr
@@ -48,7 +47,10 @@ class Agent():
 		V = self.Q.get((State,Action),0)
 		
 		V_1 = V + self.learn_rate * (Reward + self.gama * V1 - V)
-		self.Q[ ( State, Action) ] = V_1
+		if V_1 > 0.01:
+			self.Q[ ( State, Action) ] = V_1
+		elif ( State, Action) in self.Q:
+			del self.Q[( State, Action)]
 
 
 
@@ -59,6 +61,31 @@ class Agent():
 		else:
 			return max(values)
 
+
+	def clean_q(self):
+		"""removes worst records in Q dictionary
+		"""
+		States = set([ S for (S,_) in self.Q])
+		print "There is %i unique states" % len(States)
+
+		to_del = []
+		for key in self.Q:
+			if self.Q[key] < 0.01: to_del.append(key)
+		print "%i records will be deleted" % len(to_del)
+
+		for key in to_del:
+			del self.Q[key]
+		"""
+		for State in States:
+			actions = [ (self.Q[(S,A)], A) for (S,A) in self.Q if S == State]
+			if len(actions) < 10: continue
+			
+			actions.sort()
+			worst = actions[:len(actions)/2]
+			
+			for (V,A) in worst:
+				del self.Q[(State,A)] 
+		"""
 
 
 
