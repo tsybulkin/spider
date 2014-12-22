@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 
 
 
-episode_len = 10
 
 
 def get_action(State,Action,robot,agent):
@@ -50,15 +49,18 @@ def run(episodes):
 	for i in range(episodes):
 		robot = Spider()
 		run_episode(robot,agent,False)
+		if i%1000 == 0: print "State-action explored:", len(agent.Q)
 
+	print "State-action explored:", len(agent.Q)
 
 	## demo what has been leartn
-	run_episode(robot,agent,True)
+	run_episode(robot,agent,True,episode_len=50)
+
 	
 
 
 
-def run_episode(robot, agent, draw):
+def run_episode(robot, agent, draw,episode_len=30):
 	
 	if draw:
 		plt.axes()
@@ -69,7 +71,7 @@ def run_episode(robot, agent, draw):
 		plt.show()
 		
 	for _ in range(episode_len):	
-		robot.draw(plt)
+		if draw: robot.draw(plt)
 
 		State = robot.get_state()
 		policy = agent.get_policy(State)
@@ -83,6 +85,7 @@ def run_episode(robot, agent, draw):
 				robot = get_random_action(State, robot, agent)
 				if robot == None: return -1
 
+	
 	return 1		
 
 

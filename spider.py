@@ -13,12 +13,8 @@ import numpy as np
 from tools import *
 
 
-alpha_max = pi/2
-beta_max = pi
-phi_max = pi/5
-
-r_body = 0.2
-r_leg = 0.5
+r_body = 0.3
+r_leg = 0.9
 
 
 class Spider():
@@ -27,17 +23,16 @@ class Spider():
 		self.R = 5
 		self.h = 1
 		
-		self.x0 = 0
-		self.y0 = 0
+		self.xy0 = np.array([0,0])
 		self.theta = theta
 
-		self.legs = [ Leg( index=i, attach_angle=theta+pi/2*i, raised=i==0 ) for i in range(4) ]
+		delta = 0.1
+		self.legs = [ Leg( index=i, attach_angle=theta-delta/2+(pi/2+delta/3)*i, raised=i==0 ) for i in range(4) ]
 
 
 	def copy(self):
 		copy = Spider()
-		copy.x0 = self.x0
-		copy.y0 = self.y0
+		copy.xy0 = self.xy0
 		copy.theta = self.theta
 		copy.legs = []
 		for leg in self.legs:
@@ -74,34 +69,74 @@ class Spider():
 		"""take action and gets to the next State
 		returns reward and nextState
 		"""
-		x_old = self.x0
-		y_old = self.y0
-
+		xy_old = self.xy0
+		
 		(i,j, k,n) = Action
+		#print "\nAction:",Action
 		
 		raised_leg = self.get_raised_leg()
-		raised_leg.phi += r_leg*n/raised_leg.d
+		d_phi = r_leg*n/raised_leg.d
 		raised_leg.d += r_leg*k
+		if raised_leg.legal(d_phi,raised_leg.d):
+			raised_leg.phi += d_phi
+		else:
+			return (-1,None)	
+
+		dxy = np.array([r_body*( i*cos(self.theta) - j*sin(self.theta)), 
+						r_body*( i*sin(self.theta) + j*cos(self.theta)) ])
 		
+		for leg in self.legs:
+			if not leg.update(self.xy0, dxy, self.R, self.theta):
+				return (-1,None)
 		
-		return (0, self.get_state())
+		self.xy0 = xy_old[:] + dxy
+		reward = dxy[0] - abs(dxy[1])	
+		
+		## check if raised leg changed
+		self.check_raised_leg()
+
+
+		return (reward, self.get_state())
 
 	
 	def draw(self,plt):
 		ps = plt.gca().patches
 		while len(ps) >1: ps.pop() 
 		
-		circle = plt.Circle((self.x0,self.y0), radius=self.R, fc='r')
+		circle = plt.Circle(tuple(self.xy0), radius=self.R, fc='r')
 		plt.gca().add_patch(circle)
 		
 		for leg in self.legs:
 			if leg.raised: color = 'r'
 			else: color = 'b'
 
-			foot = plt.Circle(leg.get_xy(self.x0,self.y0,self.R,self.theta), radius=self.R/5, fc=color)	
+			foot = plt.Circle(leg.get_xy((self.xy0,self.R,self.theta)), radius=self.R/5, fc=color)	
 			plt.gca().add_patch(foot)
 		plt.draw()
-		sleep(0.5)
+		sleep(1)
+
+
+	def check_raised_leg(self):
+		leg_raised = self.get_raised_leg()
+		raised = leg_raised.index
+		leg1 = self.legs[(raised+3)%4]
+		leg2 = self.legs[(raised+1)%4]
+
+		body = self.xy0,self.R,self.theta
+		f1 = leg1.get_xy(body)
+		f2 = leg2.get_xy(body)
+		if np.cross( f2-f1, self.xy0-f1) > 0: return
+		
+		leg0 = self.legs[(raised+2)%4]
+		fo = leg0.get_xy(body)
+		fr = leg_raised.get_xy(body)	
+		if np.cross(fr-fo,self.xy0-fo) > 0:
+			leg1.raised = True
+		else:
+			leg2.raised = True
+
+		leg_raised.raised = False
+		
 
 
 
