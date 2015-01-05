@@ -6,6 +6,7 @@
 ####################################################### 
 
 from leg import Leg
+import agent_arr
 
 from math import sin,cos,radians,degrees,pi,asin,atan,sqrt
 from time import sleep
@@ -55,17 +56,24 @@ class Spider():
 		"""returns 12-dimensional state of the spider. 
 		Xo,Yo and 'theta' are not included to the state
 		"""
-		return tuple([ ( d_angle(leg.phi), d_dist(leg.d), leg.raised )  
-			for leg in self.legs])
+		
+		state = self.get_raised_leg().index
+		for leg in self.legs:
+			state = (state<<4) + (d_angle(leg.phi)<<2) + d_dist(leg.d) 
+			#print "d_angle:",d_angle(leg.phi)
+			#print "d-dist:",d_dist(leg.d)
+			assert d_angle(leg.phi) < 4
+			assert d_dist(leg.d) < 4
+
+		#print "State:", state 
+		return state
 
 
 
 	def get_actions(self):
-		"""returns a list of all actions
-		action = (rn,rt,rn,rt) for body and for free leg
+		"""returns an index of 8 possible actions
 		"""
-		Ls = [-1,0,1]
-		return [ (i, j, k, n) for i in Ls for j in Ls for k in Ls for n in Ls ]
+		return range(8)
 
 
 
@@ -76,7 +84,7 @@ class Spider():
 		xy_old = sum([ leg.get_xy((self.xy0,self.R,self.theta)) for leg in self.legs ])
 		
 		#(i,j, k,n) = Action
-		(i,j, k,n) = agent.index_to_action(Action)
+		(i,j, k,n) = agent_arr.index_to_action(Action)
 		#print "\nAction:",Action
 		
 		raised_leg = self.get_raised_leg()
@@ -100,7 +108,7 @@ class Spider():
 		dxy1 = xy_new - xy_old
 		## check if raised leg changed
 		self.check_raised_leg()
-		reward = dxy1[0] - abs(dxy1[1])/3 - 0.01	
+		reward = dxy1[0] - abs(dxy1[1])/3 - 0.3	
 		
 
 		return (reward, self.get_state())

@@ -10,7 +10,7 @@ from tools import coin
 
 
 class Agent():
-	def __init__(self, eps=0.05, lr=0.5, gama=0.9):
+	def __init__(self, eps=0.15, lr=0.5, gama=0.7):
 		self.Q = {}
 		self.eps = eps
 		self.learn_rate = lr
@@ -45,9 +45,10 @@ class Agent():
 	def learn(self, State, nextState, Action, Reward):
 		(V1,_) = self.get_value_action(nextState)
 		V = self.Q.get((State,Action),0)
+		#print "Value:", V
 		
 		V_1 = V + self.learn_rate * (Reward + self.gama * V1 - V)
-		if V_1 > 0.01:
+		if V_1 > -0.1:
 			self.Q[ ( State, Action) ] = V_1
 		elif ( State, Action) in self.Q:
 			del self.Q[( State, Action)]
@@ -55,6 +56,8 @@ class Agent():
 
 
 	def get_value_action(self,State):
+		if State == None:
+			return (-1,None)
 		values = [ (self.Q[(S,A)],A) for (S,A) in self.Q if S == State ]
 		if len(values) == 0:
 			return (0,None)
@@ -70,10 +73,11 @@ class Agent():
 
 		to_del = []
 		for key in self.Q:
-			if self.Q[key] < 0.01: to_del.append(key)
+			if self.Q[key] < - 0.1: to_del.append(key)
 		print "%i records will be deleted" % len(to_del)
 
 		for key in to_del:
+			print "deleting:", key
 			del self.Q[key]
 		"""
 		for State in States:

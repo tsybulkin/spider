@@ -9,8 +9,8 @@ from math import sin, cos, asin, pi
 import numpy as np
 
 
-d_min = 1
-d_max = 9
+d_min = 1.0
+d_max = 9.0
 phi_max = pi/4
 
 
