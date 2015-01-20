@@ -8,6 +8,8 @@
 from math import sin, cos, asin, pi
 import numpy as np
 
+from random import random
+
 
 d_min = 1.0
 d_max = 9.0
@@ -22,6 +24,11 @@ class Leg():
 		self.d = d
 		self.L = L
 		self.raised = raised
+
+
+	def set_random_state(self):
+		self.phi = 2*(random() - 0.5) * phi_max
+		self.d = d_min + (d_max - d_min)*random()
 
 
 	def get_xy(self,(xy0,R,theta)):

@@ -17,9 +17,6 @@ from tools import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-from pybrain.supervised.trainers import BackpropTrainer
-from pybrain.datasets import SupervisedDataSet
-
 
 
 def get_action(State,Action,robot,agent):
@@ -69,21 +66,18 @@ def run(episodes, mode):
 		
 		if mode == 'salsa_arr':
 			robot = spider_arr.Spider()
+			robot.initialize_at_random()
 		else:
 			robot = spider.Spider()
 
-		agent.DS = SupervisedDataSet( 20, 1 )
-		
 		run_episode(robot,agent,False)
-		if mode == 'neural':
-			trainer = BackpropTrainer( agent.Qnet, dataset=agent.DS, momentum=0.5, verbose=False, weightdecay=0.01)
-			trainer.train()
-
-		
+					
 	
 	## demo what has been leartn
 	_ = raw_input("press key to watch the demo")
-	run_episode(robot,agent,True,episode_len=100)
+	#robot = spider_arr.Spider()
+	#robot.initialize_at_random()
+	run_episode(robot,agent,True,episode_len=150)
 
 
 	if mode == 'neural':
@@ -122,7 +116,7 @@ def run_episode(robot, agent, draw,episode_len=100):
 		else:
 			robot = get_action(State,policy,robot, agent)
 			
-	if robot.xy0[0]>12:
+	if robot.xy0[0]>9.0:
 		print "xy: %s" % robot.xy0
 	return 1		
 

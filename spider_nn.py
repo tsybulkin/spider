@@ -7,6 +7,8 @@
 
 from leg import Leg
 
+import nn_agent
+
 from math import sin,cos,radians,degrees,pi,asin,atan,sqrt
 from time import sleep
 import numpy as np
@@ -55,18 +57,13 @@ class Spider():
 		"""returns 12-dimensional state of the spider. 
 		Xo,Yo and 'theta' are not included to the state
 		"""
-		return tuple([ ( d_angle(leg.phi), d_dist(leg.d), leg.raised )  
+		return tuple([ ( nn_angle(leg.phi), nn_dist(leg.d), leg.raised )  
 			for leg in self.legs])
 
 
 
-	def get_actions(self):
-		"""returns a list of all actions
-		action = (rn,rt,rn,rt) for body and for free leg
-		"""
-		Ls = [-1,0,1]
-		return [ (i, j, k, n) for i in Ls for j in Ls for k in Ls for n in Ls ]
-
+	def get_move(self,Action):
+		return()
 
 
 	def take_action(self, Action):
@@ -75,8 +72,8 @@ class Spider():
 		"""
 		xy_old = sum([ leg.get_xy((self.xy0,self.R,self.theta)) for leg in self.legs ])
 		
-		#(i,j, k,n) = Action
-		(i,j, k,n) = agent.index_to_action(Action)
+		(i,j, k,n) = self.get_move(Action)
+		#(i,j, k,n) = nn_agent.index_to_action(Action)
 		#print "\nAction:",Action
 		
 		raised_leg = self.get_raised_leg()

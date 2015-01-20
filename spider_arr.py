@@ -62,8 +62,9 @@ class Spider():
 			state = (state<<4) + (d_angle(leg.phi)<<2) + d_dist(leg.d) 
 			#print "d_angle:",d_angle(leg.phi)
 			#print "d-dist:",d_dist(leg.d)
-			assert d_angle(leg.phi) < 4
-			assert d_dist(leg.d) < 4
+			
+			#assert d_angle(leg.phi) < 4
+			#assert d_dist(leg.d) < 4
 
 		#print "State:", state 
 		return state
@@ -81,8 +82,10 @@ class Spider():
 		"""take action and gets to the next State
 		returns reward and nextState
 		"""
-		xy_old = sum([ leg.get_xy((self.xy0,self.R,self.theta)) for leg in self.legs ])
-		
+		#xy_old = sum([ leg.get_xy((self.xy0,self.R,self.theta)) for leg in self.legs ])
+		xy_old = (self.legs[0].get_xy((self.xy0,self.R,self.theta)) + 
+			self.legs[2].get_xy((self.xy0,self.R,self.theta)) )/2
+
 		#(i,j, k,n) = Action
 		(i,j, k,n) = agent_arr.index_to_action(Action)
 		#print "\nAction:",Action
@@ -104,7 +107,9 @@ class Spider():
 		
 		self.xy0 = self.xy0[:]+dxy
 		#print "reward:",reward
-		xy_new = sum([ leg.get_xy((self.xy0,self.R,self.theta)) for leg in self.legs ])
+		#xy_new = sum([ leg.get_xy((self.xy0,self.R,self.theta)) for leg in self.legs ])
+		xy_new = (self.legs[0].get_xy((self.xy0,self.R,self.theta)) + 
+			self.legs[2].get_xy((self.xy0,self.R,self.theta)) )/2
 		dxy1 = xy_new - xy_old
 		## check if raised leg changed
 		self.check_raised_leg()
@@ -132,6 +137,9 @@ class Spider():
 
 
 	def check_raised_leg(self):
+		""" Checks if the raised leg changed
+		Updates corresponding legs
+		"""
 		leg_raised = self.get_raised_leg()
 		raised = leg_raised.index
 		leg1 = self.legs[(raised+3)%4]
@@ -154,6 +162,11 @@ class Spider():
 		leg_raised.raised = False
 		
 
+	def initialize_at_random(self):
+		for leg in self.legs:
+			leg.set_random_state()
+
+		self.check_raised_leg()
 
 
 

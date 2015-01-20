@@ -30,8 +30,14 @@ def choose_randomly(Ls):
 
 def d_angle(angle): return int( (angle+phi_max)/angle_discrete )
 
-
 def d_dist(distance): return int( (d_max-distance)/dist_discrete )
+
+
+
+def nn_angle(angle): return angle/angle_discrete # lays in (-2, +2)
+
+def nn_dist(distance): return distance/dist_discrete # lays in (-4, +4)
+
 
 
 def read_data(my_file):
