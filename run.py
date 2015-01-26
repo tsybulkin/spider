@@ -44,50 +44,47 @@ def get_random_action(State, robot, agent):
 
 def run(episodes, mode):
 	seed()
-	
 	if mode == 'neural':
-		agent = nn_agent()
-	elif mode == 'salsa_dict':
-		agent = agent.Agent()
-		data = read_data("data/spider.dat")
-		if data != None:
-			agent.Q = data
-	elif mode == 'salsa_arr':
-		agent = agent_arr.Agent()
-		data = read_data("data/spider_arr.dat")
-		if data != None:
-			agent.Q = data
+		run_neural(episodes)
+	elif mode == 'salsa':
+		run_salsa(episodes)
 	else:
 		raise
-	
-	
+
+
+def run_neural(episodes):
+	agent = agent_nn.Agent()
+	for i in range(episodes):
+		if i%10000 == 0: print "%i episodes passed." % i
+		robot = spider_nn.Spider()
+		run_episode(robot,agent,False)
+
+		_ = raw_input("press key to watch the demo")
+		run_episode(robot,agent,True,episode_len=150)
+
+
+
+def run_salsa(episodes):
+	agent = agent_arr.Agent()
+	data = read_data("data/spider_arr.dat")
+	if data != None:
+		agent.Q = data
+
 	for i in range(episodes):
 		if i%10000 == 0: print "%i episodes passed." % i
 		
-		if mode == 'salsa_arr':
-			robot = spider_arr.Spider()
-			robot.initialize_at_random()
-		else:
-			robot = spider.Spider()
-
+		robot = spider_arr.Spider()
+		robot.initialize_at_random()
+		
 		run_episode(robot,agent,False)
 					
-	
 	## demo what has been leartn
 	_ = raw_input("press key to watch the demo")
 	#robot = spider_arr.Spider()
 	#robot.initialize_at_random()
 	run_episode(robot,agent,True,episode_len=150)
 
-
-	if mode == 'neural':
-		pass
-	elif mode == 'salsa_dict':
-		agent.clean_q()
-		print "State-action remained:", len(agent.Q)
-		write_data(agent.Q,"data/spider.dat")
-	elif mode == 'salsa_arr':
-		write_data(agent.Q,"data/spider_arr.dat")
+	write_data(agent.Q,"data/spider_arr.dat")
 	
 
 	
